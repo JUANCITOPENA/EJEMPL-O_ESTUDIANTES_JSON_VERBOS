@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Estudiantes</title>
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
+      font-family: "Poppins", sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 40px;
+      font-weight: 700;
+      color: #2d2d2d;
+    }
+
+    .card {
+      border: 4px solid transparent;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease, border-color 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card-img-top {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin: 15px auto 0;
+      display: block;
+      border: 4px solid #4f46e5;
+    }
+
+    .card-body {
+      text-align: center;
+    }
+
+    .equivalencia {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .nota-final {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .equivalencia-A, .equivalencia-B {
+      color: #16a34a;
+    }
+    .equivalencia-C, .equivalencia-D {
+      color: #eab308;
+    }
+    .equivalencia-F {
+      color: #dc2626;
+    }
+
+    .borde-A, .borde-B {
+      border-color: #16a34a;
+    }
+    .borde-C, .borde-D {
+      border-color: #eab308;
+    }
+    .borde-F {
+      border-color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Lista de Estudiantes</h1>
+
+    <!-- 🔍 Buscador y botón limpiar -->
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <input
+          type="text"
+          id="busqueda"
+          class="form-control"
+          placeholder="Buscar por nombre..."
+        />
+      </div>
+      <div class="col-md-4">
+        <button id="limpiar" class="btn btn-secondary w-100">Limpiar</button>
+      </div>
+    </div>
+
+    <div class="row" id="contenedor-estudiantes"></div>
+  </div>
+
+  <script>
+    const contenedor = document.getElementById("contenedor-estudiantes");
+    const busquedaInput = document.getElementById("busqueda");
+    const botonLimpiar = document.getElementById("limpiar");
+
+    const url =
+      "https://raw.githubusercontent.com/JUANCITOPENA/EJEMPL-O_ESTUDIANTES_JSON_VERBOS/main/ESTUDIANTES.json";
+
+    let estudiantesOriginal = [];
+
+    function renderizarEstudiantes(lista) {
+      contenedor.innerHTML = "";
+      lista.forEach((est) => {
+        const col = document.createElement("div");
+        col.className = "col-md-4 col-lg-3 mb-4";
+
+        let claseEquivalencia = "";
+        let claseBorde = "";
+        switch (est.equivalencia) {
+          case "A":
+          case "B":
+            claseEquivalencia = "equivalencia-A";
+            claseBorde = "borde-A";
+            break;
+          case "C":
+          case "D":
+            claseEquivalencia = "equivalencia-C";
+            claseBorde = "borde-C";
+            break;
+          case "F":
+            claseEquivalencia = "equivalencia-F";
+            claseBorde = "borde-F";
+            break;
+        }
+
+        const card = `
+          <div class="card p-2 ${claseBorde}">
+            <img src="${est.imagen}" class="card-img-top" alt="${est.nombre_completo}">
+            <div class="card-body">
+              <h5 class="card-title">${est.nombre_completo}</h5>
+              <p class="text-muted">Matrícula: ${est.matricula}</p>
+              <p>Asistencia: ${est.asistencia} / 10</p>
+              <p>Trabajo Práctico: ${est.trabajo_practico} / 20</p>
+              <p>Examen Parcial: ${est.examen_parcial} / 20</p>
+              <p>Examen Final: ${est.examen_final} / 50</p>
+              <p class="nota-final">Nota Final: ${est.nota_final}</p>
+              <p class="equivalencia ${claseEquivalencia}">
+                Equivalencia: ${est.equivalencia}
+              </p>
+            </div>
+          </div>
+        `;
+
+        col.innerHTML = card;
+        contenedor.appendChild(col);
+      });
+    }
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        estudiantesOriginal = data.estudiantes;
+        renderizarEstudiantes(estudiantesOriginal);
+      })
+      .catch((error) => {
+        console.error("Error cargando JSON:", error);
+        contenedor.innerHTML =
+          "<p class='text-danger text-center'>Error cargando los datos de estudiantes.</p>";
+      });
+
+    busquedaInput.addEventListener("input", () => {
+      const texto = busquedaInput.value.toLowerCase();
+      const filtrados = estudiantesOriginal.filter((est) =>
+        est.nombre_completo.toLowerCase().includes(texto)
+      );
+      renderizarEstudiantes(filtrados);
+    });
+
+    botonLimpiar.addEventListener("click", () => {
+      busquedaInput.value = "";
+      renderizarEstudiantes(estudiantesOriginal);
+    });
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
